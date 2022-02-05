@@ -103,6 +103,7 @@ function _main() {
     }
   });
 
+  // Breadth First Search
   document.getElementById('search-bf').addEventListener('click', () => {
     let start = window.prompt(`Start breadth-first traversal from node...`);
     if (start) {
@@ -114,6 +115,7 @@ function _main() {
       }
     }
   });
+  // Depth First Search
   document.getElementById('search-df').addEventListener('click', () => {
     let start = window.prompt(`Start depth-first traversal from node...`);
     if (start) {
@@ -125,8 +127,20 @@ function _main() {
       }
     }
   });
+  // Tree Test
+  document.getElementById('tree-test').addEventListener('click', () => {
+    const obj = g.graph.isTree();
+    if (obj.tree) {
+      alert(`This graph is also a tree`);
+    } else {
+      alert(`This graph is not a tree: path clash at node ${obj.clash}\nRoute 1: ${obj.traceback1.join('->')}\nRoute 2: ${obj.traceback2.join('->')}`);
+    }
+  });
 
-  const data = `{"A":{"B":0,"C":0,"_":[149,87]},"B":{"C":0,"D":0,"E":0,"_":[362,88]},"C":{"D":0,"F":0,"_":[255,195]},"D":{"E":0,"H":0,"_":[388,264]},"E":{"_":[526,198]},"F":{"G":0,"_":[166,332]},"G":{"_":[166,457]},"H":{"_":[386,460]}}`;
+  // ? DATA: GRAPH
+  // const data = `{"A":{"B":0,"C":0,"_":[149,87]},"B":{"C":0,"D":0,"E":0,"_":[362,88]},"C":{"D":0,"F":0,"_":[255,195]},"D":{"E":0,"H":0,"_":[388,264]},"E":{"_":[526,198]},"F":{"G":0,"_":[166,332]},"G":{"_":[166,457]},"H":{"_":[386,460]}}`;
+  // ? DATA: TREE
+  const data = `{"F":{"G":1,"_":[513,63]},"G":{"I":1,"_":[609,133]},"I":{"H":1,"_":[691,218]},"H":{"_":[610,287]},"B":{"F":1,"D":1,"_":[404,125]},"A":{"B":1,"_":[328,196]},"D":{"C":1,"E":1,"_":[462,208]},"C":{"_":[393,281]},"E":{"_":[522,287]}}`;
   g.graph.fromObject(JSON.parse(data));
   dtable.update();
   dtable.show();

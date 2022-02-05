@@ -206,6 +206,7 @@ export class Graph {
     }
   }
 
+  /** Complete one iteration of Dijkstra's Algorithms */
   _pdtIteration(table, currentNode) {
     // Get neighbors to currentNode
     const neighbors = this.getUnvisitedNeighbors(table, currentNode);
@@ -289,5 +290,35 @@ export class Graph {
     }
 
     return result;
+  }
+
+  /** Test: is this graph a tree? */
+  isTree() {
+    let node = this._nodes[Math.floor(Math.random() * this._nodes.length)], from;
+    const visited = new Map(); // Map visited node to which node it was visited from
+    const queue = [{ node: node.label, from: undefined }]; // Contains node labels to visit
+    let queueBP = 0;
+    while (queue.length !== 0) {
+      ({ node, from } = queue[queueBP++]);
+      if (visited.has(node)) { // Clash! We have seen this before.
+        const traceback = (startNode, nodeVisitedFrom) => {
+          let node = startNode, from = nodeVisitedFrom;
+          const traceback = [];
+          while (true) {
+            traceback.push(node);
+            node = from;
+            if (from === undefined) break;
+            from = queue.find(rec => rec.node === from).from;
+          }
+          return traceback.reverse();
+        };
+        return { tree: false, clash: node, traceback1: traceback(node, from), traceback2: traceback(node, visited.get(node)) };
+      }
+      visited.set(node, from); // Record as visited
+      let neighbors = Object.keys(this.getNeighbors(node));
+      neighbors = neighbors.filter(n => n !== from); // Remove node we just came from
+      queue.push(...neighbors.map(n => ({ node: n, from: node }))); // Add neighbors to queue to explore
+    }
+    return { tree: true };
   }
 }

@@ -53,6 +53,11 @@ export class Graph {
     return this._nodes.length === 0 ? null : this._nodes[Math.floor(Math.random() * this._nodes.length)];
   }
 
+  /** Return array of nodes in alphabetical order */
+  getNodesAlphabetically() {
+    return [...this._nodes].sort((a, b) => a.label.charCodeAt(0) > b.label.charCodeAt(0) ? 1 : -1);
+  }
+
   createNode(label) {
     if (this.getNode(label) !== null) throw new Error(`Node with label '${label}' already exists`);
 
@@ -142,6 +147,29 @@ export class Graph {
   getArcs() {
     const conns = this._conns.sort((a, b) => a.weight > b.weight ? 1 : -1);
     return conns.map(c => ([c.src.label, c.dst.label, c.weight]));
+  }
+
+  /** Return distance matrix */
+  getDistanceMatrix(alphabetical = false) {
+    const dm = [];
+    const nodes = alphabetical ? this.getNodesAlphabetically() : this._nodes;
+    nodes.forEach((rowNode, i) => {
+      const row = [];
+      nodes.forEach((colNode, j) => {
+        if (rowNode === colNode) {
+          row.push(NaN);
+        } else {
+          const conn = this.getConnection(rowNode.label, colNode.label);
+          if (conn) {
+            row.push(conn.weight);
+          } else {
+            row.push(Infinity);
+          }
+        }
+      });
+      dm.push(row);
+    });
+    return dm;
   }
 
   toObject() {
@@ -353,6 +381,40 @@ export class Graph {
         nodes.add(conn.dst);
       }
     });
+    return { arcs, nodes: Array.from(nodes) };
+  }
+
+  /** Prims Algorithm: minimum spanning tree. Return { arcs: Connection[], nodes: Node[] } */
+  primms() {
+    const mat = this.getDistanceMatrix(false);
+    const visited = new Set(); // Set of indexes of visited cols
+    const deletedRows = new Set(); // Set of indexes of seleted rows
+    const arcs = [], nodes = new Set();
+    let node = this.getRandomNode();
+    while (true) {
+      let ni = this._nodes.indexOf(node);
+      visited.add(ni); // Mark column as visited
+      deletedRows.add(ni); // Delete row
+      nodes.add(node);
+
+      let minWeight = Infinity, minNode = null;
+      mat.forEach((row, i) => {
+        if (!deletedRows.has(i)) {
+          row.forEach((weight, j) => {
+            if (visited.has(j)) {
+              if (weight < minWeight) {
+                minWeight = weight;
+                minNode = this._nodes[i];
+              }
+            }
+          });
+        }
+      });
+      if (minNode === null) break;
+      const conn = this.getConnection(node.label, minNode.label);
+      arcs.push(conn);
+      node = minNode;
+    }
     return { arcs, nodes: Array.from(nodes) };
   }
 

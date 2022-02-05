@@ -3,6 +3,7 @@ import { addEvents } from './js/events.js';
 import { dtable } from './js/dijkstra.js';
 import { readFileFromInput, downloadTextFile } from './js/file.js';
 import { Connection } from './js/connection.js';
+import Popup from './js/Popup.js';
 
 // Globals
 window.g = {
@@ -148,8 +149,20 @@ function _main() {
   });
   // Get distance matrix
   document.getElementById('get-distanceMatrix').addEventListener('click', () => {
-    const dm = g.graph.getDistanceMatrix();
-    console.log(dm);
+    const dm = g.graph.getDistanceMatrix(true);
+    const table = document.createElement("table");
+    const ordered = g.graph.getNodesAlphabetically();
+    table.insertAdjacentHTML("beforeend", `<thead><tr><th></th>${ordered.map(n => `<th>${n.label}</th>`).join('')}</tr></thead>`);
+    const tbody = table.createTBody();
+    ordered.forEach((node, i) => {
+      const row = document.createElement("tr");
+      row.insertAdjacentHTML("beforeend", `<th>${node.label}</th>`);
+      dm[i].forEach(n => row.insertAdjacentHTML("beforeend", `<td><var>${isNaN(n) ? '&mdash;' : n.toLocaleString("en-GB")}</var></td>`));
+      tbody.appendChild(row);
+    });
+    const popup = new Popup('Distance Matrix');
+    popup.setContent(table);
+    popup.show();
   });
   // Breadth First Search
   document.getElementById('search-bf').addEventListener('click', () => {
@@ -187,6 +200,19 @@ function _main() {
   // MST: Kruskal
   document.getElementById('run-kruskal').addEventListener('click', () => {
     const { arcs, nodes } = g.graph.kruskals();
+    alert(`MST contains ${arcs.length} arcs\n${arcs.map(c => `${c.src.label}->${c.dst.label}(${c.weight})`).join(', ')}`);
+    if (confirm('Draw MST?')) {
+      pushGraphHistory();
+      g.graph._nodes = nodes;
+      g.graph._conns = arcs;
+      g.graph._changed = true;
+      dtable.update();
+      dtable.show();
+    }
+  });
+  // MST: Primms
+  document.getElementById('run-primms').addEventListener('click', () => {
+    const { arcs, nodes } = g.graph.primms();
     alert(`MST contains ${arcs.length} arcs\n${arcs.map(c => `${c.src.label}->${c.dst.label}(${c.weight})`).join(', ')}`);
     if (confirm('Draw MST?')) {
       pushGraphHistory();

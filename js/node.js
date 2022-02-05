@@ -23,6 +23,14 @@ export class Node {
   get x() { return this._x; }
   get y() { return this._y; }
 
+  clone() {
+    const N = new Node(this.label);
+    N._x = this._x;
+    N._y = this._y;
+    N._onChange = this._onChange;
+    return N;
+  }
+
   onChange() {
     if (typeof this._onChange === 'function') this._onChange();
   }

@@ -1,7 +1,7 @@
 export const WIDTH = 3;
 
 export class Connection {
-  constructor(src, dst, weight) {
+  constructor(src, dst, weight = 0) {
     this.weight = weight;
     this.src = src;
     this.dst = dst;
@@ -12,7 +12,7 @@ export class Connection {
   get weight() { return this._weight; }
   set weight(w) {
     w = +w;
-    if (w < 0 || isNaN(w) || !isFinite(w)) throw new Error(`#<Connection>.set weight: invalid weight value.`);
+    if (w < 0 || isNaN(w) || !isFinite(w)) throw new Error(`#<Connection>.set weight: invalid weight value ${w}`);
     this._weight = w;
   }
 
@@ -20,6 +20,11 @@ export class Connection {
   set highlight(value) {
     this._highlight = !!value;
     this.onChange();
+  }
+
+  clone() {
+    const C = new Connection(this.src.clone(), this.dst.clone(), this.weight);
+    return C;
   }
 
   onChange() {

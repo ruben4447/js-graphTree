@@ -2,11 +2,11 @@ import { Node } from './node.js';
 import { Connection } from './connection.js';
 
 export class Graph {
-  constructor(opts) {
+  constructor(opts = {}) {
     this._canvas = opts.canvas;
-    this._canvas.width = opts.width;
-    this._canvas.height = opts.height;
-    this.ctx = this._canvas.getContext('2d');
+    if (opts.height != undefined) this._canvas.width = opts.width;
+    if (opts.width != undefined) this._canvas.height = opts.height;
+    this.ctx = this._canvas?.getContext('2d');
 
     this._nodes = [];
     this._conns = [];
@@ -40,11 +40,17 @@ export class Graph {
     if (this.drawLoop) requestAnimationFrame(this.draw.bind(this));
   }
 
+  /** Return Node object with the given label, or null */
   getNode(label) {
     for (const node of this._nodes) {
       if (node.label === label) return node;
     }
     return null;
+  }
+
+  /** Return random node, or null if no nodes in graph */
+  getRandomNode() {
+    return this._nodes.length === 0 ? null : this._nodes[Math.floor(Math.random() * this._nodes.length)];
   }
 
   createNode(label) {
@@ -130,6 +136,12 @@ export class Graph {
     this._conns.filter(obj => obj.src.label === label).forEach(obj => { data[obj.dst.label] = obj.weight; });
     // this._conns.filter(obj => obj.dst.label === label).forEach(obj => { data[obj.src.label] = obj.weight; });
     return data;
+  }
+
+  /** Return all arcs in format [src, dst, weight][] */
+  getArcs() {
+    const conns = this._conns.sort((a, b) => a.weight > b.weight ? 1 : -1);
+    return conns.map(c => ([c.src.label, c.dst.label, c.weight]));
   }
 
   toObject() {
@@ -294,11 +306,12 @@ export class Graph {
 
   /** Test: is this graph a tree? */
   isTree() {
-    let node = this._nodes[Math.floor(Math.random() * this._nodes.length)], from;
+    if (this._nodes.length === 0) return true;
+    let node = this.getRandomNode(), from;
     const visited = new Map(); // Map visited node to which node it was visited from
     const queue = [{ node: node.label, from: undefined }]; // Contains node labels to visit
     let queueBP = 0;
-    while (queue.length !== 0) {
+    while (queueBP < queue.length) {
       ({ node, from } = queue[queueBP++]);
       if (visited.has(node)) { // Clash! We have seen this before.
         const traceback = (startNode, nodeVisitedFrom) => {
@@ -320,5 +333,34 @@ export class Graph {
       queue.push(...neighbors.map(n => ({ node: n, from: node }))); // Add neighbors to queue to explore
     }
     return { tree: true };
+  }
+
+  /** Kruskals Algorithm: minimum spanning tree. Return { arcs: Connection[], nodes: Node[] } */
+  kruskals() {
+    const conns = this._conns.sort((a, b) => a.weight > b.weight ? 1 : -1);
+    const arcs = [], nodes = new Set();
+    conns.forEach(conn => {
+      const nArcs = [...arcs, conn];
+      const nNodes = new Set(nodes);
+      nNodes.add(conn.src);
+      nNodes.add(conn.dst);
+      const tmpG = new Graph();
+      tmpG._nodes = Array.from(nNodes);
+      tmpG._conns = nArcs;
+      if (tmpG.isTree().tree) {
+        arcs.push(conn);
+        nodes.add(conn.src);
+        nodes.add(conn.dst);
+      }
+    });
+    return { arcs, nodes: Array.from(nodes) };
+  }
+
+  /** Create graph explicitly from array of nodes and connections */
+  static createExplicitly(opts, nodes, connections) {
+    const G = new Graph(opts);
+    G._nodes = nodes;
+    G._conns = connections;
+    return G;
   }
 }

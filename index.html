@@ -4,15 +4,20 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dijkstra's Shortest Path</title>
+  <title>Graph Builder</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="wrapper"></div>
+  <div>
+    <button id="history-pop">Pop History</button>
+    <button id="history-push">Push History</button>
+    <button id="history-count">History Count</button>
+  </div>
 
   <div id="dikstra">
-    <h2>Graph Builder</h2>
-    <p>State: <em id='dtable-state'></em> &nbsp; <span id='dtable-toggle'><button id='dtable-step'>Step &rarr;</button>  <button id='dtable-reset'>Reset</button></span>  <button id='dtable-trace'>Trace</button></p>
+    <h2>Dijkstra Algorithm</h2>
+    <p><button id="dijkstra-exec">Exec</button> | State: <em id='dtable-state'></em> &nbsp; <span id='dtable-toggle'><button id='dtable-step'>Step &rarr;</button>  <button id='dtable-reset'>Reset</button></span>  <button id='dtable-trace'>Trace</button></p>
     <table id='dtable'></table>
   </div>
   <hr>
@@ -20,9 +25,11 @@
   <div id="search">
     <h2>Algorithms</h2>
     <ul>
+      <li><a href='javascript:void(0);' id='get-arcs'>Get Arcs</a> &nbsp; <a href='javascript:void(0);' id='get-distanceMatrix'>Get Distance Matrix</a></li>
       <li><a href='javascript:void(0);' id='search-bf'>Search: Breadth First</a></li>
       <li><a href='javascript:void(0);' id='search-df'>Search: Depth First</a></li>
       <li><a href='javascript:void(0);' id='tree-test'>Test if Tree</a></li>
+      <li><a href='javascript:void(0);' id='run-kruskal'>MST: Kruskal</a></li>
     </ul>
   </div>
   <hr>

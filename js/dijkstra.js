@@ -133,7 +133,7 @@ export const dtable = {
     if (this.stateEl) this.stateEl.innerText = state;
   },
 
-  /** Run Dijkstra's algorithm to completion */
+  /** Run Dijkstra's algorithm to completion. Provide node to start from. */
   startFinish(node) {
     this._start = node;
     this._.start(node);

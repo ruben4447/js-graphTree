@@ -2,6 +2,7 @@ import { Graph } from './js/graph.js';
 import { addEvents } from './js/events.js';
 import { dtable } from './js/dijkstra.js';
 import { readFileFromInput, downloadTextFile } from './js/file.js';
+import { Connection } from './js/connection.js';
 
 // Globals
 window.g = {
@@ -12,6 +13,7 @@ window.g = {
   ctx: undefined,
   graph: undefined,
   addEventValue: undefined, // Return value from addEvents(...)
+  graphHistory: [] // Array of { nodes: Node[], conns: Connection[] }
 };
 
 function createGraph(g) {
@@ -33,6 +35,23 @@ function removeGraph(g) {
   dtable.remove();
 }
 
+function pushGraphHistory() {
+  if (g.graph) {
+    const nodes = g.graph._nodes.map(node => node.clone());
+    const conns = g.graph._conns.map(conn => new Connection(nodes[g.graph._nodes.indexOf(conn.src)], nodes[g.graph._nodes.indexOf(conn.dst)], conn.weight));
+    g.graphHistory.push({ nodes: Array.from(nodes), conns });
+  }
+}
+
+function popGraphHistory() {
+  if (g.graphHistory.length > 0 && g.graph) {
+    const { nodes, conns } = g.graphHistory.pop();
+    g.graph._nodes = nodes;
+    g.graph._conns = conns;
+    g.graph._changed = true;
+  }
+}
+
 function _main() {
   g.wrapper = document.getElementById('wrapper');
   dtable.el = document.getElementById('dtable');
@@ -48,6 +67,21 @@ function _main() {
   // node.move(500, 350);
 
   // g.graph.createConnection(g.graph.getNode('A'), g.graph.getNode('B'), 17);
+
+  document.getElementById('history-pop').addEventListener('click', () => {
+    if (g.graph) {
+      popGraphHistory();
+      g.graph._changed = true;
+    }
+  });
+  document.getElementById('history-push').addEventListener('click', () => {
+    if (g.graph) {
+      pushGraphHistory();
+    }
+  });
+  document.getElementById('history-count').addEventListener('click', () => {
+    alert(`There are ${g.graphHistory.length} records in history`);
+  });
 
   const file_input = document.getElementById('upload-file');
   file_input.addEventListener('change', async () => {
@@ -78,6 +112,11 @@ function _main() {
     downloadTextFile(JSON.stringify(object), "graph.json", "application/json");
   });
 
+  document.getElementById('dijkstra-exec').addEventListener('click', () => {
+    let from = prompt(`Enter node to start Dijkstra from`, g.graph.getRandomNode().label);
+    dtable.startFinish(from);
+    dtable.show();
+  });
   document.getElementById('dtable-step').addEventListener('click', () => {
     dtable.step();
     dtable.show();
@@ -103,6 +142,15 @@ function _main() {
     }
   });
 
+  // Get arcs
+  document.getElementById('get-arcs').addEventListener('click', () => {
+    alert(g.graph.getArcs().map(([a, b, c]) => `${a}->${b}(${c})`).join(', '));
+  });
+  // Get distance matrix
+  document.getElementById('get-distanceMatrix').addEventListener('click', () => {
+    const dm = g.graph.getDistanceMatrix();
+    console.log(dm);
+  });
   // Breadth First Search
   document.getElementById('search-bf').addEventListener('click', () => {
     let start = window.prompt(`Start breadth-first traversal from node...`);
@@ -136,11 +184,26 @@ function _main() {
       alert(`This graph is not a tree: path clash at node ${obj.clash}\nRoute 1: ${obj.traceback1.join('->')}\nRoute 2: ${obj.traceback2.join('->')}`);
     }
   });
+  // MST: Kruskal
+  document.getElementById('run-kruskal').addEventListener('click', () => {
+    const { arcs, nodes } = g.graph.kruskals();
+    alert(`MST contains ${arcs.length} arcs\n${arcs.map(c => `${c.src.label}->${c.dst.label}(${c.weight})`).join(', ')}`);
+    if (confirm('Draw MST?')) {
+      pushGraphHistory();
+      g.graph._nodes = nodes;
+      g.graph._conns = arcs;
+      g.graph._changed = true;
+      dtable.update();
+      dtable.show();
+    }
+  });
 
-  // ? DATA: GRAPH
+  // ? DATA: GENERAL GRAPH
   // const data = `{"A":{"B":0,"C":0,"_":[149,87]},"B":{"C":0,"D":0,"E":0,"_":[362,88]},"C":{"D":0,"F":0,"_":[255,195]},"D":{"E":0,"H":0,"_":[388,264]},"E":{"_":[526,198]},"F":{"G":0,"_":[166,332]},"G":{"_":[166,457]},"H":{"_":[386,460]}}`;
-  // ? DATA: TREE
-  const data = `{"F":{"G":1,"_":[513,63]},"G":{"I":1,"_":[609,133]},"I":{"H":1,"_":[691,218]},"H":{"_":[610,287]},"B":{"F":1,"D":1,"_":[404,125]},"A":{"B":1,"_":[328,196]},"D":{"C":1,"E":1,"_":[462,208]},"C":{"_":[393,281]},"E":{"_":[522,287]}}`;
+  // ? DATA: GENERAL TREE
+  // const data = `{"F":{"G":1,"_":[513,63]},"G":{"I":1,"_":[609,133]},"I":{"H":1,"_":[691,218]},"H":{"_":[610,287]},"B":{"F":1,"D":1,"_":[404,125]},"A":{"B":1,"_":[328,196]},"D":{"C":1,"E":1,"_":[462,208]},"C":{"_":[393,281]},"E":{"_":[522,287]}}`;
+  // ? DATA: TREE FOR TESTING KRUSKALS
+  const data = `{"D":{"C":8,"_":[463,90]},"E":{"D":4,"A":5,"_":[317,169]},"A":{"D":6,"_":[408,255]},"B":{"C":5,"A":7,"D":6,"_":[562,266]},"C":{"_":[620,167]}}`;
   g.graph.fromObject(JSON.parse(data));
   dtable.update();
   dtable.show();

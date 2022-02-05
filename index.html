@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dijkstra's Shortest Path</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="wrapper"></div>
+
+  <div id="dikstra">
+    <h2>Dijkstra's Algorithm</h2>
+    <p>State: <em id='dtable-state'></em> &nbsp; <span id='dtable-toggle'><button id='dtable-step'>Step &rarr;</button>  <button id='dtable-reset'>Reset</button></span>  <button id='dtable-trace'>Trace</button></p>
+    <table id='dtable'></table>
+  </div>
+  <hr>
+
+  <div id="search">
+    <h2>Search Methods</h2>
+    <ul>
+      <li><a href='javascript:void(0);' id='search-bf'>Breadth First</a></li>
+      <li><a href='javascript:void(0);' id='search-df'>Depth First</a></li>
+    </ul>
+  </div>
+  <hr>
+  
+  <div>
+    <p><b>Upload Graph</b> &nbsp; &nbsp; &nbsp; &nbsp;<input type="file" id="upload-file" /></p>
+    <p><b>Download Graph</b> &nbsp; &nbsp; &nbsp; <a href="javascript:void(0);" id="download-file">Here</a></p>
+  </div>
+
+  <hr>
+  <h2>Controls</h2>
+  <p>Drag and drop to move nodes</p>
+  <p>Left-click on a node to start a connection. Left-click on another node to connect them, or anywhere else to stop connection.</p>
+  <p>Right-click on nodes to re-name them, or on connections to change their value, or on the white background to create a new node</p>
+  <p>Press 'delete' key over node/connection to remove it. Press 's' over a node to start Dikstra's algorithm (step-through), or press 'enter' to run Dijkstra's algorithm to completion</p>
+
+  <script charset="utf-8" type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+canvas {
+  border: 1px solid black;
+}
+
+table,
+tr,
+th,
+td {
+  border: 1px solid black;
+}
+
+table {
+  border-collapse: collapse;
+}

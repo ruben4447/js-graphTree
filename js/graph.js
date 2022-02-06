@@ -126,6 +126,32 @@ export class Graph {
     return neighbors;
   }
 
+  /** Return nodes {left: Node, right: Node} of the given node */
+  getBinaryChildren(parentNode) {
+    let parentNodeObj = this.getNode(parentNode);
+    let leftX = parentNodeObj.x, leftNode;
+    let rightX = parentNodeObj.x, rightNode;
+    for (const conn of this._conns) {
+      let node;
+      if (conn.src.label === parentNode && conn.dst.y > parentNodeObj.y) {
+        node = conn.dst;
+      } else if (conn.dst.label === parentNode && conn.src.y > parentNodeObj.y) {
+        node = conn.src;
+      } else {
+        continue;
+      }
+      if (node.x < leftX) {
+        leftX = node.x;
+        leftNode = node;
+      }
+      if (node.x > rightX) {
+        rightX = node.x;
+        rightNode = node;
+      }
+    }
+    return { left: leftNode, right: rightNode };
+  }
+
   removeConnection(labelA, labelB) {
     for (let i = this._conns.length - 1; i >= 0; i--) {
       if ((this._conns[i].src.label === labelA && this._conns[i].dst.label === labelB) || (this._conns[i].src.label === labelB && this._conns[i].dst.label === labelA)) {
@@ -416,6 +442,64 @@ export class Graph {
       node = minNode;
     }
     return { arcs, nodes: Array.from(nodes) };
+  }
+
+  /** Pre-Order Traversal: current, left, right */
+  traversePreOrder(rootNode) {
+    let node = this.getNode(rootNode);
+    const visited = [];
+    const stack = [node];
+    while (stack.length > 0) {
+      node = stack.pop();
+      visited.push(node);
+      const { left, right } = this.getBinaryChildren(node.label);
+      if (right) stack.push(right);
+      if (left) stack.push(left);
+    }
+    return visited;
+  }
+
+  /** In-Order Traversal: left, current, current, right */
+  traverseInOrder(rootNode) {
+    let node = this.getNode(rootNode);
+    const visited = [];
+    const stack = [];
+    while (stack.length > 0 || node != undefined) {
+      if (node != undefined) { // Visit left branch
+        stack.push(node);
+        const { left } = this.getBinaryChildren(node.label);
+        node = left;
+      } else {
+        let top = stack.pop();
+        visited.push(top); // Visit current node
+        const { right } = this.getBinaryChildren(top.label);
+        node = right; // Visit right node
+      }
+    }
+    return visited;
+  }
+
+  /** Post-Order Traversal: left, right, current */
+  traversePostOrder(rootNode) {
+    let node = this.getNode(rootNode);
+    const visited = [];
+    const stack = [];
+    while (stack.length > 0 || node != undefined) {
+      if (node != undefined) { // Visit left branch
+        stack.push(node);
+        const { left } = this.getBinaryChildren(node.label);
+        node = left;
+      } else {
+        let top = stack[stack.length - 1];
+        const { right } = this.getBinaryChildren(top.label);
+        if (right && visited[visited.length - 1] !== right) { // Visit right branch if not visited
+          node = right;
+        } else { // Visit current node
+          visited.push(stack.pop());
+        }
+      }
+    }
+    return visited;
   }
 
   /** Create graph explicitly from array of nodes and connections */

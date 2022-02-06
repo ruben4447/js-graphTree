@@ -223,13 +223,34 @@ function _main() {
       dtable.show();
     }
   });
+  // Pre-Order Traversal
+  document.getElementById('traverse-pre').addEventListener('click', () => {
+    let root = prompt('Enter tree\'s root node');
+    if (root) {
+      alert(g.graph.traversePreOrder(root).map(node => node.label).join(', '));
+    }
+  });
+  // In-Order Traversal
+  document.getElementById('traverse-in').addEventListener('click', () => {
+    let root = prompt('Enter tree\'s root node');
+    if (root) {
+      alert(g.graph.traverseInOrder(root).map(node => node.label).join(', '));
+    }
+  });
+  // Post-Order Traversal
+  document.getElementById('traverse-post').addEventListener('click', () => {
+    let root = prompt('Enter tree\'s root node');
+    if (root) {
+      alert(g.graph.traversePostOrder(root).map(node => node.label).join(', '));
+    }
+  });
 
   // ? DATA: GENERAL GRAPH
   // const data = `{"A":{"B":0,"C":0,"_":[149,87]},"B":{"C":0,"D":0,"E":0,"_":[362,88]},"C":{"D":0,"F":0,"_":[255,195]},"D":{"E":0,"H":0,"_":[388,264]},"E":{"_":[526,198]},"F":{"G":0,"_":[166,332]},"G":{"_":[166,457]},"H":{"_":[386,460]}}`;
   // ? DATA: GENERAL TREE
-  // const data = `{"F":{"G":1,"_":[513,63]},"G":{"I":1,"_":[609,133]},"I":{"H":1,"_":[691,218]},"H":{"_":[610,287]},"B":{"F":1,"D":1,"_":[404,125]},"A":{"B":1,"_":[328,196]},"D":{"C":1,"E":1,"_":[462,208]},"C":{"_":[393,281]},"E":{"_":[522,287]}}`;
+  const data = `{"F":{"G":1,"_":[513,63]},"G":{"I":1,"_":[609,133]},"I":{"H":1,"_":[691,218]},"H":{"_":[610,287]},"B":{"F":1,"D":1,"_":[404,125]},"A":{"B":1,"_":[328,196]},"D":{"C":1,"E":1,"_":[462,208]},"C":{"_":[393,281]},"E":{"_":[522,287]}}`;
   // ? DATA: TREE FOR TESTING KRUSKALS
-  const data = `{"D":{"C":8,"_":[463,90]},"E":{"D":4,"A":5,"_":[317,169]},"A":{"D":6,"_":[408,255]},"B":{"C":5,"A":7,"D":6,"_":[562,266]},"C":{"_":[620,167]}}`;
+  // const data = `{"D":{"C":8,"_":[463,90]},"E":{"D":4,"A":5,"_":[317,169]},"A":{"D":6,"_":[408,255]},"B":{"C":5,"A":7,"D":6,"_":[562,266]},"C":{"_":[620,167]}}`;
   g.graph.fromObject(JSON.parse(data));
   dtable.update();
   dtable.show();
